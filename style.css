@@ -1,0 +1,210 @@
+/* Font tải sẵn trong máy -> render offline ổn định */
+@font-face{font-family:'Lilita One';font-style:normal;font-weight:400;font-display:block;
+  src:url(fonts/LilitaOne-latin.woff2) format('woff2')}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;overflow:hidden}
+body.playing{cursor:none}
+
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{
+  position:relative;width:var(--w,1080px);height:var(--h,1920px);flex:none;overflow:hidden;
+  transform:scale(var(--s,1));transform-origin:center center;
+  font-family:'Lilita One','Arial Black','Segoe UI',sans-serif;color:#fff;
+  user-select:none;
+}
+
+/* ---------- Nền ---------- */
+#bg{position:absolute;inset:0;z-index:0;
+  background:linear-gradient(160deg,#8a2be2,#4a1fb8 45%,#d10fa0 100%);
+  background-size:200% 200%;animation:bgShift 8s ease-in-out infinite alternate}
+#rays{position:absolute;left:50%;top:42%;width:3200px;height:3200px;margin:-1600px 0 0 -1600px;
+  background:repeating-conic-gradient(rgba(255,255,255,.11) 0 9deg,transparent 9deg 18deg);
+  animation:spin 40s linear infinite}
+#blocks .blk{position:absolute;bottom:-260px;border-radius:20%;opacity:.35;
+  box-shadow:inset -8px -8px 0 rgba(0,0,0,.18),inset 8px 8px 0 rgba(255,255,255,.25);
+  animation:rise linear infinite}
+#scene{position:absolute;inset:0;z-index:2}
+#fx{position:absolute;inset:0;z-index:5;pointer-events:none}
+
+/* ---------- Chữ hoạt hình ---------- */
+.cartoon{-webkit-text-stroke:14px #2a0b57;paint-order:stroke fill;text-shadow:0 10px 0 #2a0b57;
+  letter-spacing:2px;line-height:1}
+
+/* Safe-zone của Shorts: chừa đáy ~380px (tiêu đề/kênh) */
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  padding:150px 60px 380px;animation:sceneIn .25s ease-out both}
+
+/* ---------- HOOK ---------- */
+.hook{justify-content:center;gap:30px}
+.hook-title{display:flex;flex-direction:column;align-items:center;gap:14px}
+.hook-title .ln{font-size:190px;color:var(--c);display:block;
+  -webkit-text-stroke:18px #2a0b57;paint-order:stroke fill;text-shadow:0 14px 0 #2a0b57;
+  animation:popIn .6s cubic-bezier(.2,1.6,.4,1) both,bounce 1s ease-in-out infinite;
+  animation-delay:var(--d),calc(var(--d) + .6s)}
+.hook-title .ln.sm{font-size:150px}
+.hook-sub{margin-top:40px;font-size:68px;text-align:center;line-height:1.1;
+  -webkit-text-stroke:10px #2a0b57;paint-order:stroke fill;text-shadow:0 6px 0 #2a0b57;
+  animation:popIn .5s .9s cubic-bezier(.2,1.6,.4,1) both}
+.hook-emojis{font-size:120px;display:flex;gap:18px;margin-top:20px}
+.hook-emojis span{display:block;animation:popIn .5s cubic-bezier(.2,1.6,.4,1) both,wiggle 1.2s ease-in-out infinite;
+  animation-delay:var(--d),calc(var(--d) + .5s)}
+
+/* ---------- QUESTION ---------- */
+.badge{background:var(--accent);padding:14px 52px;border-radius:70px;font-size:62px;
+  border:8px solid #2a0b57;box-shadow:0 10px 0 #2a0b57;
+  animation:dropIn .5s cubic-bezier(.2,1.5,.4,1) both}
+.qnum{font-size:150px;margin-top:34px;animation:popIn .5s .1s cubic-bezier(.2,1.6,.4,1) both}
+.prompt{font-size:76px;text-align:center;margin-top:20px;line-height:1.08;min-height:165px;
+  -webkit-text-stroke:10px #2a0b57;paint-order:stroke fill;text-shadow:0 6px 0 #2a0b57;
+  animation:popIn .5s .2s cubic-bezier(.2,1.6,.4,1) both}
+.emoji-card{margin-top:24px;width:100%;display:flex;align-items:center;justify-content:center;gap:14px;
+  padding:44px 20px;border-radius:70px;background:rgba(255,255,255,.95);
+  border:10px solid #2a0b57;box-shadow:0 16px 0 #2a0b57,0 0 80px rgba(255,255,255,.4)}
+.emoji-card .em{font-size:175px;line-height:1;font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif;
+  animation:popIn .5s cubic-bezier(.2,1.8,.4,1) both,wiggle 1.4s ease-in-out infinite;
+  animation-delay:calc(.35s + var(--i)*.18s),calc(.9s + var(--i)*.18s)}
+.emoji-card .plus{font-size:90px;color:#2a0b57;animation:popIn .4s cubic-bezier(.2,1.8,.4,1) both;
+  animation-delay:calc(.3s + var(--i)*.18s)}
+.timer{position:relative;margin-top:44px;width:290px;height:290px;animation:popIn .5s .5s cubic-bezier(.2,1.6,.4,1) both}
+.timer svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.timer .track{fill:rgba(0,0,0,.35);stroke:rgba(255,255,255,.25);stroke-width:22}
+.timer .bar{fill:none;stroke:var(--accent);stroke-width:22;stroke-linecap:round;
+  stroke-dasharray:597;stroke-dashoffset:0;animation:ring var(--dur) linear forwards}
+.timer .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:190px;
+  -webkit-text-stroke:12px #2a0b57;paint-order:stroke fill;text-shadow:0 6px 0 #2a0b57}
+.timer .num.tick{animation:tickPop .45s cubic-bezier(.2,1.8,.4,1)}
+
+/* ---------- ANSWER ---------- */
+.ans-mini{margin-top:26px;font-size:90px;letter-spacing:10px;opacity:.9;animation:popIn .4s cubic-bezier(.2,1.6,.4,1) both;
+  font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif}
+.glow{position:absolute;left:50%;top:790px;width:1500px;height:1500px;margin:-750px 0 0 -750px;z-index:-1;
+  background:repeating-conic-gradient(rgba(255,255,160,.35) 0 7deg,transparent 7deg 14deg);
+  -webkit-mask:radial-gradient(circle,#000 0,transparent 62%);mask:radial-gradient(circle,#000 0,transparent 62%);
+  animation:spin 14s linear infinite}
+.flip{margin-top:40px;width:640px;height:640px;perspective:1400px}
+.flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;
+  transition:transform .75s cubic-bezier(.3,1.4,.5,1)}
+.flip.go .flip-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:80px;
+  border:12px solid #2a0b57;box-shadow:0 18px 0 #2a0b57;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.face.front{background:linear-gradient(145deg,#ffd93b,#ff8a00);font-size:380px;color:#fff;
+  -webkit-text-stroke:14px #2a0b57;paint-order:stroke fill}
+.face.back{transform:rotateY(180deg);background:radial-gradient(circle at 50% 40%,#fff,#d9f1ff 70%);padding:30px}
+.face.back img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 14px 10px rgba(0,0,0,.3));
+  animation:heroIn .8s .35s cubic-bezier(.2,1.6,.4,1) both}
+.face.back .big-emoji{font-size:400px;line-height:1;animation:heroIn .8s .35s cubic-bezier(.2,1.6,.4,1) both;
+  font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif}
+.correct{margin-top:46px;font-size:120px;color:#5dff7a;opacity:0;
+  -webkit-text-stroke:14px #2a0b57;paint-order:stroke fill;text-shadow:0 8px 0 #2a0b57}
+.correct.show{animation:popIn .55s cubic-bezier(.2,1.8,.4,1) both}
+.aname{margin-top:18px;font-size:92px;text-align:center;line-height:1.05;opacity:0;
+  -webkit-text-stroke:11px #2a0b57;paint-order:stroke fill;text-shadow:0 7px 0 #2a0b57;
+  font-family:'Lilita One','Arial Black',sans-serif}
+.aname.show{animation:popIn .55s cubic-bezier(.2,1.8,.4,1) both}
+
+/* ---------- OUTRO ---------- */
+.outro{gap:10px}
+.o-title{font-size:106px;text-align:center;line-height:1.05;animation:popIn .6s cubic-bezier(.2,1.6,.4,1) both}
+.o-sub{font-size:64px;margin-top:6px;animation:popIn .5s .2s cubic-bezier(.2,1.6,.4,1) both,wiggle 1.5s 1s ease-in-out infinite;
+  -webkit-text-stroke:10px #2a0b57;paint-order:stroke fill;text-shadow:0 6px 0 #2a0b57;
+  font-family:'Lilita One','Arial Black','Segoe UI Emoji',sans-serif}
+.tiles{margin-top:26px;width:100%;display:grid;grid-template-columns:repeat(var(--cols,2),1fr);gap:26px}
+.tile{position:relative;height:250px;border-radius:50px;background:rgba(255,255,255,.95);border:8px solid #2a0b57;
+  box-shadow:0 10px 0 #2a0b57;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  animation:popIn .5s cubic-bezier(.2,1.8,.4,1) both;animation-delay:calc(.5s + var(--i)*.28s);color:#2a0b57}
+.tile .te{font-size:118px;line-height:1;font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif}
+.tile img{mix-blend-mode:multiply;height:155px;max-width:88%;object-fit:contain;filter:drop-shadow(0 5px 4px rgba(0,0,0,.25))}
+.tile .tn{font-size:36px;margin-top:6px;text-align:center;padding:0 10px}
+.tile .tk{position:absolute;top:-26px;right:-16px;width:76px;height:76px;border-radius:50%;background:#3ddc5c;
+  border:7px solid #2a0b57;font-size:46px;display:flex;align-items:center;justify-content:center}
+.sub-wrap{position:relative;margin-top:44px;display:flex;flex-direction:column;align-items:center;min-height:420px}
+.sub-btn{display:flex;align-items:center;gap:26px;background:#ff1a1a;padding:26px 70px;border-radius:100px;
+  border:10px solid #2a0b57;box-shadow:0 14px 0 #2a0b57;font-size:96px;opacity:0;transform:scale(.2);
+  font-family:'Lilita One','Arial Black','Segoe UI Emoji',sans-serif}
+.sub-btn .play{width:100px;height:72px;background:#fff;border-radius:22px;display:flex;align-items:center;justify-content:center}
+.sub-btn .play::after{content:"";border-left:34px solid #ff1a1a;border-top:21px solid transparent;border-bottom:21px solid transparent;margin-left:8px}
+.sub-btn.show{animation:popIn .55s cubic-bezier(.2,1.8,.4,1) both,pulse .9s .6s ease-in-out infinite}
+.sub-btn.done{background:#8a8a99;animation:none;opacity:1;transform:scale(1);
+  transition:background .2s;font-size:76px}
+.sub-btn.done .play{display:none}
+.hand{position:absolute;top:140px;right:150px;font-size:130px;opacity:0;
+  font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif}
+.hand.show{animation:handIn .5s both}
+.hand.tap{animation:handTap .45s both}
+.o-cta{margin-top:120px;font-size:62px;text-align:center;line-height:1.1;animation:popIn .5s 2s cubic-bezier(.2,1.6,.4,1) both;
+  -webkit-text-stroke:10px #2a0b57;paint-order:stroke fill;text-shadow:0 6px 0 #2a0b57}
+
+/* ---------- Màn hình chờ & debug ---------- */
+#start{position:fixed;inset:0;z-index:100;background:rgba(10,0,30,.82);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:28px;color:#fff;font-family:'Segoe UI',Arial,sans-serif;text-align:center}
+#start.hidden{display:none}
+#startBtn{font-family:'Lilita One','Arial Black',sans-serif;font-size:54px;padding:22px 80px;border:0;border-radius:60px;
+  background:#ffd93b;color:#2a0b57;cursor:pointer;box-shadow:0 8px 0 #b88600}
+#startBtn:active{transform:translateY(4px);box-shadow:0 4px 0 #b88600}
+#start p{opacity:.8;line-height:1.9;font-size:16px}
+#start code{background:#ffffff22;padding:2px 8px;border-radius:6px;margin:0 2px}
+#dbg{position:absolute;left:20px;top:20px;z-index:50;font:600 34px monospace;background:#000a;padding:6px 14px;border-radius:10px}
+
+/* ---------- Keyframes ---------- */
+@keyframes bgShift{to{background-position:100% 100%}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rise{to{transform:translateY(-2500px) rotate(360deg)}}
+@keyframes sceneIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{0%{opacity:0;transform:scale(.15)}70%{opacity:1;transform:scale(1.14)}100%{opacity:1;transform:scale(1)}}
+@keyframes dropIn{0%{opacity:0;transform:translateY(-160px) scale(.8)}100%{opacity:1;transform:none}}
+@keyframes bounce{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-22px) rotate(1.5deg)}}
+@keyframes wiggle{0%,100%{transform:rotate(-5deg) scale(1)}50%{transform:rotate(5deg) scale(1.07)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+@keyframes ring{to{stroke-dashoffset:597}}
+@keyframes tickPop{0%{transform:scale(1.7);opacity:.2}100%{transform:scale(1);opacity:1}}
+@keyframes heroIn{0%{transform:scale(.3) rotate(-20deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes handIn{from{opacity:0;transform:translate(80px,120px)}to{opacity:1;transform:none}}
+@keyframes handTap{0%{opacity:1;transform:none}50%{opacity:1;transform:translate(-14px,-34px) scale(.88)}100%{opacity:1;transform:none}}
+
+/* =====================================================================
+   LANDSCAPE 1920x1080 (body.land) – bố cục ngang cho video YouTube thường
+   ===================================================================== */
+.land .scene{padding:50px 90px}
+
+/* Hook */
+.land .hook{gap:14px}
+.land .hook-title{gap:6px}
+.land .hook-title .ln{font-size:150px;-webkit-text-stroke:14px #2a0b57;text-shadow:0 10px 0 #2a0b57}
+.land .hook-title .ln.sm{font-size:130px}
+.land .hook-sub{margin-top:18px;font-size:58px}
+.land .hook-emojis{font-size:100px;margin-top:6px}
+
+/* Question: tiêu đề phía trên, thẻ emoji bên trái + đồng hồ bên phải */
+.land .scene.q{display:grid;grid-template-columns:1160px 300px;grid-template-areas:"b b" "n n" "p p" "c t";
+  justify-content:center;align-content:center;justify-items:center;align-items:center;column-gap:50px;row-gap:12px}
+.land .q .badge{grid-area:b;font-size:52px;padding:8px 44px;border-width:7px}
+.land .q .qnum{grid-area:n;font-size:118px;margin:0}
+.land .q .prompt{grid-area:p;font-size:68px;min-height:0;margin:0}
+.land .q .emoji-card{grid-area:c;margin:14px 0 0;padding:26px 20px;gap:18px;border-radius:60px}
+.land .q .emoji-card .em{font-size:225px}
+.land .q .emoji-card .plus{font-size:90px}
+.land .q .timer{grid-area:t;margin:14px 0 0;width:270px;height:270px}
+.land .q .timer .num{font-size:170px}
+
+/* Answer: ảnh bên trái, chữ bên phải */
+.land .scene.a{display:grid;grid-template-columns:780px 880px;grid-template-areas:"f b" "f m" "f c" "f n";
+  justify-content:center;align-content:center;align-items:center;justify-items:center;column-gap:70px;row-gap:6px}
+.land .a .flip{grid-area:f;margin:0;width:780px;height:780px}
+.land .a .badge{grid-area:b}
+.land .a .ans-mini{grid-area:m;margin:10px 0 0;font-size:80px}
+.land .a .correct{grid-area:c;margin:20px 0 0;font-size:110px}
+.land .a .aname{grid-area:n;margin:6px 0 0;font-size:84px}
+.land .glow{left:485px;top:540px}
+
+/* Outro */
+.land .outro{justify-content:center;gap:6px}
+.land .o-title{font-size:92px}
+.land .o-sub{font-size:52px;margin-top:0}
+.land .tiles{margin-top:18px;gap:24px;width:1560px}
+.land .tile{height:260px}
+.land .tile .te{font-size:110px}
+.land .sub-wrap{margin-top:26px;min-height:330px}
+.land .sub-btn{font-size:84px;padding:20px 64px}
+.land .o-cta{margin-top:100px;font-size:56px}
+.land .hand{top:110px}

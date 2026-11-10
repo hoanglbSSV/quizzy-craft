@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roblox Quiz Shorts – Template</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sân khấu cố định 1080x1920, tự scale vừa cửa sổ -->
+  <div id="viewport">
+    <div id="stage">
+      <div id="bg"><div id="rays"></div><div id="blocks"></div></div>
+      <div id="scene"></div>
+      <canvas id="fx" width="1080" height="1920"></canvas>
+    </div>
+  </div>
+
+  <!-- Màn hình chờ (ẩn đi khi quay) -->
+  <div id="start">
+    <button id="startBtn">▶ PLAY</button>
+    <p>
+      <b>Space</b> chạy lại &nbsp;•&nbsp; <b>M</b> tắt/bật SFX<br>
+      URL: <code>?format=landscape</code> <code>?data=videos/v2.js</code><br>
+      <code>?autoplay=1</code> <code>?loop=1</code> <code>?mute=1</code> <code>?debug=1</code>
+    </p>
+  </div>
+
+  <!-- Nạp file dữ liệu: mặc định quiz-data.js, hoặc ?data=duong/dan.js -->
+  <script>
+    (function () {
+      var d = new URLSearchParams(location.search).get('data') || 'quiz-data.js';
+      if (!/^[\w.\/-]+\.js$/.test(d) || d.indexOf('..') >= 0) d = 'quiz-data.js';
+      document.write('<script src="' + d + '"><\/script>');
+    })();
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

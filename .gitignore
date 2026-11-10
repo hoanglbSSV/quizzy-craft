@@ -1,0 +1,16 @@
+# Dependencies (restore with npm ci)
+node_modules/
+
+# Local credentials and configuration
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# Intermediate render files; keep completed videos and audio
+out/*.silent.mp4
+
+# Logs and operating system files
+*.log
+.DS_Store
+Thumbs.db
